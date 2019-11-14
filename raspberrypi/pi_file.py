@@ -95,7 +95,7 @@ def client(q, addr):
 
 
 if __name__ == '__main__':
-    addr = 'B8:27:EB:EA:08:F4'
+    addr = '6C:71:D9:A5:79:3A'
     q = Queue()
     p_server = Process(target=server, args=(q,))
     p_client = Process(target=client, args=(q, addr))

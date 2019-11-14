@@ -95,7 +95,8 @@ def client(addr):
 
 
 if __name__ == '__main__':
-    addr = '6C:71:D9:A5:79:3A'
+
+    addr = 'B8:27:EB:EA:08:F4'
     p_server = Process(target=server)
     p_client = Process(target=client, args=(addr,))
     p_server.start()
