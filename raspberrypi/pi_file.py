@@ -81,11 +81,13 @@ def client(q, addr):
         print('received data from pc:', data)
         if data == 'pic':
             print('sending image...')
+            sock.send('begin')
             with open ('pic.png', 'rb') as f:
                 buffer = 1
                 while buffer:
                     buffer = f.read(1024)
                     sock.send(buffer)
+                sock.send('end')
                 print('image sent.')
 
     sock.close()

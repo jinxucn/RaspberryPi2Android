@@ -31,17 +31,23 @@ def server():
     client_sock, client_info = server_sock.accept()
     print("Accepted connection from ", client_info)
 
+    transmit = False
     try:
         while True:
             data = client_sock.recv(1024)
-            if len(data) == 0: continue
-            print('saving image...')
-            with open('pic.png', 'wb') as f:
-                while len(data) > 0:
-                    f.write(data)
-                    data = client_sock.recv(1024)
-                print('image saved.')
+            if data == 'begin':
+                transmit = True
+                f = open('pic.png', 'wb')
+                print('saving image...')
+                continue
+            if data == 'end':
+                transmit = False
                 f.flush()
+                f.close()
+                print('image saved.')
+                continue
+            if transmit:
+                f.write(data)
     except IOError:
         pass
 
