@@ -97,6 +97,7 @@ if __name__ == '__main__':
     p_server = Process(target=server)
     p_client = Process(target=client, args=(addr,))
     p_server.start()
+    time.sleep(5)
     p_client.start()
     p_server.join()
     p_client.join()

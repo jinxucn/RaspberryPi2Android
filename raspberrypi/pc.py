@@ -5,6 +5,7 @@
 
 from bluetooth import *
 from multiprocessing import Process, Queue
+import time
 
 
 def server(q):
@@ -96,6 +97,7 @@ if __name__ == '__main__':
     p_server = Process(target=server, args=(q,))
     p_client = Process(target=client, args=(q, addr))
     p_server.start()
+    time.sleep(5)
     p_client.start()
     p_server.join()
     p_client.join()
