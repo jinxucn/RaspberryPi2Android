@@ -81,10 +81,10 @@ def client(addr):
     sock=BluetoothSocket( RFCOMM )
     sock.connect((host, port))
 
-    print("connected.  type stuff")
+    print("connected.")
     while True:
         data = input()
-        if len(data) == 0: break
+        if len(data) == 0: continue
         sock.send(data)
 
     sock.close()
