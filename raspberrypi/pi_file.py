@@ -49,36 +49,29 @@ def server(q):
 
 def client(q, addr):
 
-    # if len(sys.argv) < 2:
-    #     print("no device specified.  Searching all nearby bluetooth devices for")
-    #     print("the SampleServer service")
-    # else:
-    #     addr = sys.argv[1]
-    #     print("Searching for SampleServer on %s" % addr)
-    print("Searching for SampleServer_pc on %s" % addr)
-
-    # search for the SampleServer service
-    uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ef"
-    while True:
-        service_matches = find_service( uuid = uuid, address = addr )
-
-        if len(service_matches) == 0:
-            print("Couldn't find the SampleServer_pc service. Continue to search...")
-            time.sleep(1)
-        # sys.exit(0)
-        else:
-            break
-
-    first_match = service_matches[0]
-    port = first_match["port"]
-    name = first_match["name"]
-    host = first_match["host"]
-
-    print("client connecting to \"%s\" on %s" % (name, host))
-
-    client = Client(host, port)
-    client.connect()
-
+    # print("Searching for SampleServer_pc on %s" % addr)
+    #
+    # uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ef"
+    # while True:
+    #     service_matches = find_service( uuid = uuid, address = addr )
+    #
+    #     if len(service_matches) == 0:
+    #         print("Couldn't find the SampleServer_pc service. Continue to search...")
+    #         time.sleep(1)
+    #     sys.exit(0)
+        # else:
+        #     break
+    #
+    # first_match = service_matches[0]
+    # port = first_match["port"]
+    # name = first_match["name"]
+    # host = first_match["host"]
+    #
+    # print("client connecting to \"%s\" on %s" % (name, host))
+    #
+    # client = Client(host, port)
+    # client.connect()
+    #
     print("connected.")
     while True:
         data = q.get()
@@ -86,9 +79,9 @@ def client(q, addr):
         print('received data from pc:', data)
         if data == 'pic':
             print('sending image...')
-            client.put("test.txt", "Hello world\n")
+            # client.put("test.txt", "Hello world\n")
 
-    client.disconnect()
+    # client.disconnect()
 
 
 if __name__ == '__main__':
