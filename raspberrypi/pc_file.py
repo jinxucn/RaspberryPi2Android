@@ -47,10 +47,10 @@ def server():
 
 
 def client(addr):
-    try:
-        input = raw_input
-    except NameError:
-        pass  # Python 3
+    # try:
+    #     input = raw_input
+    # except NameError:
+    #     pass  # Python 3
 
     # if len(sys.argv) < 2:
     #     print("no device specified.  Searching all nearby bluetooth devices for")
@@ -84,12 +84,16 @@ def client(addr):
     sock.connect((host, port))
 
     print("connected.")
+    txt = ['hello world!', 'rutgers', '123', '321', 'china', 'pic', 'over']
+    i = 0
     while True:
-        data = input()
+        data = txt[i]
         if len(data) == 0: continue
         print('sent data to pi:', data)
         sock.send(data)
         time.sleep(2)
+        i += 1
+        if i == len(txt): i = 0
 
     sock.close()
 

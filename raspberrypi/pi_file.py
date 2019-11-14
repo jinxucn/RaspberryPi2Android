@@ -34,6 +34,7 @@ def server(q):
     try:
         while True:
             data = client_sock.recv(1024)
+            print('received data', data)
             if len(data) == 0: continue
             q.put(data)
     except IOError:
@@ -47,10 +48,6 @@ def server(q):
 
 
 def client(q, addr):
-    try:
-        input = raw_input
-    except NameError:
-        pass  # Python 3
 
     # if len(sys.argv) < 2:
     #     print("no device specified.  Searching all nearby bluetooth devices for")
