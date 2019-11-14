@@ -52,7 +52,7 @@ def client(q, addr):
     print("Searching for SampleServer_pc on %s" % addr)
 
     # search for the SampleServer service
-    uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+    uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ef"
     while True:
         service_matches = find_service( uuid = uuid, address = addr )
 
@@ -89,7 +89,6 @@ def client(q, addr):
                 print('image sent.')
 
     sock.close()
-
 
 
 if __name__ == '__main__':
