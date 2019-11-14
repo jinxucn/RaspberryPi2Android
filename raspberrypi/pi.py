@@ -61,11 +61,14 @@ def client(addr):
 
     # search for the SampleServer service
     uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-    service_matches = find_service( uuid = uuid, address = addr )
+    while True:
+        service_matches = find_service( uuid = uuid, address = addr )
 
-    if len(service_matches) == 0:
-        print("couldn't find the SampleServer service =(")
-        sys.exit(0)
+        if len(service_matches) == 0:
+            print("Couldn't find the SampleServer service. Continue to search...")
+        # sys.exit(0)
+        else:
+            break
 
     first_match = service_matches[0]
     port = first_match["port"]
