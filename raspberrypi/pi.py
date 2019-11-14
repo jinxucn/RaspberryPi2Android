@@ -9,7 +9,7 @@ from multiprocessing import Process, Queue
 import time
 
 
-def server(q):
+def server():
 
     server_sock = BluetoothSocket(RFCOMM)
     server_sock.bind(("", PORT_ANY))
@@ -94,8 +94,7 @@ def client(addr):
 
 if __name__ == '__main__':
     addr = '6C:71:D9:A5:79:3A'
-    q = Queue()
-    p_server = Process(target=server, args=(q,))
+    p_server = Process(target=server)
     p_client = Process(target=client, args=(addr,))
     p_server.start()
     p_client.start()
