@@ -34,8 +34,13 @@ def server():
     try:
         while True:
             data = client_sock.recv(1024)
-            if len(data) == 0: break
-            print("received [%s]" % data)
+            if len(data) == 0: continue
+            print('saving image...')
+            with open('pic.png', 'wb') as f:
+                while data:
+                    f.write(data)
+                    data = client_sock.recv(1024)
+                print('image saved.')
     except IOError:
         pass
 
@@ -77,13 +82,13 @@ def client(addr):
     name = first_match["name"]
     host = first_match["host"]
 
-    print("connecting to \"%s\" on %s" % (name, host))
+    print("Client connecting to \"%s\" on %s" % (name, host))
 
     # Create the client socket
     sock=BluetoothSocket( RFCOMM )
     sock.connect((host, port))
 
-    print("connected.")
+    print("Client connected to {}.".format(name))
     txt = ['hello world!', 'rutgers', '123', '321', 'china', 'pic', 'over']
     i = 0
     while True:
@@ -91,7 +96,7 @@ def client(addr):
         if len(data) == 0: continue
         print('sent data to pi:', data)
         sock.send(data)
-        time.sleep(2)
+        time.sleep(4)
         i += 1
         if i == len(txt): i = 0
 

@@ -47,17 +47,7 @@ def server():
 
 
 def client(addr):
-    try:
-        input = raw_input
-    except NameError:
-        pass  # Python 3
 
-    # if len(sys.argv) < 2:
-    #     print("no device specified.  Searching all nearby bluetooth devices for")
-    #     print("the SampleServer service")
-    # else:
-    #     addr = sys.argv[1]
-    #     print("Searching for SampleServer on %s" % addr)
     print("Searching for SampleServer_pc on %s" % addr)
 
     # search for the SampleServer service

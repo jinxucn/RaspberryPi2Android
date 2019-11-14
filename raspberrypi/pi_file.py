@@ -49,39 +49,47 @@ def server(q):
 
 def client(q, addr):
 
-    # print("Searching for SampleServer_pc on %s" % addr)
-    #
-    # uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ef"
-    # while True:
-    #     service_matches = find_service( uuid = uuid, address = addr )
-    #
-    #     if len(service_matches) == 0:
-    #         print("Couldn't find the SampleServer_pc service. Continue to search...")
-    #         time.sleep(1)
-    #     sys.exit(0)
-        # else:
-        #     break
-    #
-    # first_match = service_matches[0]
-    # port = first_match["port"]
-    # name = first_match["name"]
-    # host = first_match["host"]
-    #
-    # print("client connecting to \"%s\" on %s" % (name, host))
-    #
-    # client = Client(host, port)
-    # client.connect()
-    #
-    print("connected.")
+    print("Searching for SampleServer_pc on %s" % addr)
+
+    # search for the SampleServer service
+    uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+    while True:
+        service_matches = find_service( uuid = uuid, address = addr )
+
+        if len(service_matches) == 0:
+            print("Couldn't find the SampleServer_pc service. Continue to search...")
+            time.sleep(1)
+        # sys.exit(0)
+        else:
+            break
+
+    first_match = service_matches[0]
+    port = first_match["port"]
+    name = first_match["name"]
+    host = first_match["host"]
+
+    print("Client connecting to \"%s\" on %s" % (name, host))
+
+    # Create the client socket
+    sock = BluetoothSocket( RFCOMM )
+    sock.connect((host, port))
+
+    print("Client connected to {}.".format(name))
     while True:
         data = q.get()
         if len(data) == 0: continue
         print('received data from pc:', data)
         if data == 'pic':
             print('sending image...')
-            # client.put("test.txt", "Hello world\n")
+            with open ('pic.png', 'rb') as f:
+                buffer = 1
+                while buffer:
+                    buffer = f.read(1024)
+                    sock.send(buffer)
+                print('image sent.')
 
-    # client.disconnect()
+    sock.close()
+
 
 
 if __name__ == '__main__':
