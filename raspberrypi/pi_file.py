@@ -34,7 +34,7 @@ def server(q):
     try:
         while True:
             data = client_sock.recv(1024)
-            print('received data', data)
+            print('server received data', data)
             if len(data) == 0: continue
             q.put(data)
     except IOError:

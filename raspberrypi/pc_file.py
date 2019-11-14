@@ -38,9 +38,11 @@ def server():
             print('saving image...')
             with open('pic.png', 'wb') as f:
                 while data:
+                    print(len(data))
                     f.write(data)
                     data = client_sock.recv(1024)
                 print('image saved.')
+                f.flush()
     except IOError:
         pass
 
@@ -89,12 +91,12 @@ def client(addr):
     sock.connect((host, port))
 
     print("Client connected to {}.".format(name))
-    txt = ['hello world!', 'rutgers', '123', '321', 'china', 'pic', 'over']
+    txt = ['hello world!', 'pic', 'rutgers', '123', '321', 'china', 'over']
     i = 0
     while True:
         data = txt[i]
         if len(data) == 0: continue
-        print('sent data to pi:', data)
+        print('client sent data to pi:', data)
         sock.send(data)
         time.sleep(4)
         i += 1
