@@ -19,7 +19,7 @@ def server(q):
 
     uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
 
-    advertise_service(server_sock, "SampleServer_pc",
+    advertise_service(server_sock, "SampleServer_pi",
                       service_id=uuid,
                       service_classes=[uuid, SERIAL_PORT_CLASS],
                       profiles=[SERIAL_PORT_PROFILE],
@@ -74,7 +74,7 @@ def client(q, addr):
     name = first_match["name"]
     host = first_match["host"]
 
-    print("connecting to \"%s\" on %s" % (name, host))
+    print("client connecting to \"%s\" on %s" % (name, host))
 
     client = Client(host, port)
     client.connect()
