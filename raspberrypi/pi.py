@@ -86,9 +86,10 @@ def client(addr):
     print("connected.")
     while True:
         data = 'hello world!'
-        time.sleep(2)
         if len(data) == 0: continue
+        print('sent data to pc:', data)
         sock.send(data)
+        time.sleep(2)
 
     sock.close()
 
