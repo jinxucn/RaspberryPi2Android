@@ -35,14 +35,13 @@ def server():
     try:
         while True:
             data = client_sock.recv(1024)
-            if data == 'begin':
+            if data == b'begin':
                 transmit = True
                 f = open('pic.png', 'wb')
                 print('saving image...')
                 continue
-            if data == 'end':
+            if data == b'end':
                 transmit = False
-                f.flush()
                 f.close()
                 print('image saved.')
                 continue
