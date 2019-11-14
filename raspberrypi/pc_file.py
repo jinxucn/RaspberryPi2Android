@@ -37,8 +37,7 @@ def server():
             if len(data) == 0: continue
             print('saving image...')
             with open('pic.png', 'wb') as f:
-                while data:
-                    print(len(data))
+                while len(data) > 0:
                     f.write(data)
                     data = client_sock.recv(1024)
                 print('image saved.')
