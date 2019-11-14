@@ -58,7 +58,7 @@ def client(addr):
     # else:
     #     addr = sys.argv[1]
     #     print("Searching for SampleServer on %s" % addr)
-    print("Searching for SampleServer on %s" % addr)
+    print("Searching for SampleServer_pc on %s" % addr)
 
     # search for the SampleServer service
     uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -66,7 +66,8 @@ def client(addr):
         service_matches = find_service( uuid = uuid, address = addr )
 
         if len(service_matches) == 0:
-            print("Couldn't find the SampleServer service. Continue to search...")
+            print("Couldn't find the SampleServer_pc service. Continue to search...")
+            time.sleep(1)
         # sys.exit(0)
         else:
             break

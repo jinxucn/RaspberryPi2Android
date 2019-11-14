@@ -57,7 +57,7 @@ def client(q, addr):
     # else:
     #     addr = sys.argv[1]
     #     print("Searching for SampleServer on %s" % addr)
-    print("Searching for SampleServer on %s" % addr)
+    print("Searching for SampleServer_pi on %s" % addr)
 
     # search for the SampleServer service
     uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ef"
@@ -65,7 +65,8 @@ def client(q, addr):
         service_matches = find_service( uuid = uuid, address = addr )
 
         if len(service_matches) == 0:
-            print("Couldn't find the SampleServer service. Continue to search...")
+            print("Couldn't find the SampleServer_pi service. Continue to search...")
+            time.sleep(1)
         # sys.exit(0)
         else:
             break
@@ -85,7 +86,7 @@ def client(q, addr):
     while True:
         data = q.get()
         if len(data) == 0: continue
-        print(data)
+        print('received data from pi:', data)
         sock.send(data)
 
     sock.close()
