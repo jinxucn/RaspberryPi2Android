@@ -6,6 +6,7 @@
 
 from bluetooth import *
 from multiprocessing import Process, Queue
+import time
 
 
 def server(q):
@@ -83,7 +84,8 @@ def client(addr):
 
     print("connected.")
     while True:
-        data = input()
+        data = 'hello world!'
+        time.sleep(2)
         if len(data) == 0: continue
         sock.send(data)
 
