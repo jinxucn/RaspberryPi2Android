@@ -29,9 +29,10 @@ public class MainActivity extends AppCompatActivity {
     private final static int REQUEST_ENBLE_BT = 1;
     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private  UUID myuuid = UUID.fromString("a0a08a3b-750a-410f-a78d-c6f3426a7c81");
+    private  UUID rauuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
     private String servername = "myAndroid";
     private String NexusAddress = "A4:70:D6:B6:48:69";
-    private String RaspberryAddress = "D0:16:B4:47:C7:0B";
+    private String RaspberryAddress = "B8:27:EB:EA:08:F4";
     private String testSendMas = "hello raspberry";
     private static final String TAG = "MyActivity";
     private TextView tv1;
@@ -44,10 +45,12 @@ public class MainActivity extends AppCompatActivity {
             String info= (String) msg.obj;
             if (msg.what==1){
                 tv1.setText(getString(R.string.tvRec));
+                Log.v(TAG,"arg0");
             }
             if (arg1==0){
 
                 tv1.setText(getString(R.string.tvRec));
+                Log.v(TAG,"arg1");
             }
             return false;
         }
@@ -64,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     public void turnOnBluetooth(View view){
         Toast.makeText(this,"pleas pair Raspberry",Toast.LENGTH_SHORT).show();
         this.startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+
+
     }
 
 
@@ -75,13 +80,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         ConnectThread connect = new ConnectThread(raspberry);
-//        connect.run();
+        connect.run();
         Toast.makeText(this,raspberry.getName(),Toast.LENGTH_SHORT).show();
     }
 
 
     public void receiveMessage(View view){
+
         AcceptThread accept = new AcceptThread();
+
         accept.run();
 
     }
@@ -89,15 +96,12 @@ public class MainActivity extends AppCompatActivity {
 
     private class AcceptThread extends Thread {
         private final BluetoothServerSocket mmServerSocket;
-
         public AcceptThread() {
             // Use a temporary object that is later assigned to mmServerSocket,
             // because mmServerSocket is final
             BluetoothServerSocket tmp = null;
             try {
-                // MY_UUID is the app's UUID string, also used by the client code
-                tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(servername, myuuid);
-
+                tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(servername, rauuid);
             } catch (IOException e) { }
             mmServerSocket = tmp;
         }
@@ -107,18 +111,20 @@ public class MainActivity extends AppCompatActivity {
             // Keep listening until exception occurs or a socket is returned
             while (true) {
                 try {
-                    Log.v(TAG,"here");
                     socket = mmServerSocket.accept();
-                    Log.v(TAG,"here2");
+
                 } catch (IOException e) {
                     break;
                 }
                 // If a connection was accepted
                 if (socket != null) {
                     // Do work to manage the connection (in a separate thread)
-
-                    new ConnectedThread(socket);
-                    try{mmServerSocket.close();} catch (IOException e){}
+                    Log.v(TAG,"connected!!");
+                    ConnectedThread new ConnectedThread(socket);
+                    try{
+                        mmServerSocket.close();
+                        Log.v(TAG,"socket closed");
+                    } catch (IOException e){}
                     break;
                 }
             }
@@ -145,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             // Get a BluetoothSocket to connect with the given BluetoothDevice
             try {
                 // MY_UUID is the app's UUID string, also used by the server code
-                tmp = device.createRfcommSocketToServiceRecord(myuuid);
+                tmp = device.createRfcommSocketToServiceRecord(rauuid);
                 Log.v(TAG,String.valueOf(tmp.isConnected()));
             } catch (IOException e) { }
             mmSocket = tmp;
@@ -176,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {}
         }
     }
 
@@ -204,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             byte[] buffer = new byte[1024];  // buffer store for the stream
             int bytes; // bytes returned from read()
-
+            Log.v(TAG,"running");
             // Keep listening to the InputStream until an exception occurs
             while (true) {
                 try {
@@ -232,6 +238,28 @@ public class MainActivity extends AppCompatActivity {
                 mmSocket.close();
             } catch (IOException e) { }
         }
+    }
+
+    private void sendMsg(BluetoothSocket socket , String msg){
+        private final OutputStream mOutStream;
+        try {
+            mOutStream = socket.getOutputStream();
+        } catch (IOException e) { }
+        try {
+            mOutStream.write(msg.getBytes());
+        } catch (IOException e) { }
+    }
+
+
+    private void recMsg(BluetoothSocket socket ){
+
+
+    }
+    private class receiveMsgThread extends Thread {
+        public receiveMesThread(BluetoothSocket socket){
+
+        }
+
     }
 
 }
