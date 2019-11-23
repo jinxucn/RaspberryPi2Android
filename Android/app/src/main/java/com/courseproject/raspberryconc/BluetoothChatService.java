@@ -21,7 +21,7 @@ public class BluetoothChatService {
     private static final String NAME_INSECURE = "BluetoothChatInsecure";
 
     private static final UUID MY_UUID_SECURE =
-            UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+            UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
     public final BluetoothAdapter mAdapter;
     public final Handler mHandler;
     public AcceptThread mSecureAcceptThread;
@@ -35,13 +35,16 @@ public class BluetoothChatService {
     public static final int STATE_CONNECTING = 2;
     public static final int STATE_CONNECTED = 3;
 
+
+    private byte[] recdata;
+
     public class Constants {
 
-        public static final int MESSAGE_STATE_CHANGE = 1;  //状态改变
-        public static final int MESSAGE_READ = 2; //读取
-        public static final int MESSAGE_WRITE = 3;   //写出
-        public static final int MESSAGE_DEVICE_NAME = 4;  //设备 名称
-        public static final int MESSAGE_TOAST = 5;  //连接失败
+        public static final int MESSAGE_STATE_CHANGE = 1;
+        public static final int MESSAGE_READ = 2;
+        public static final int MESSAGE_WRITE = 3;
+        public static final int MESSAGE_DEVICE_NAME = 4;
+        public static final int MESSAGE_TOAST = 5;
 
 
         public static final String DEVICE_NAME = "device_name";
@@ -111,7 +114,7 @@ public class BluetoothChatService {
 
 
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice
-            device) {
+            device,int flag) {
 
         if (mConnectThread != null) {
             mConnectThread.cancel();
@@ -133,13 +136,13 @@ public class BluetoothChatService {
         }
 
         mConnectedThread = new ConnectedThread(socket);
-        mConnectedThread.start();
-
-        Message msg = mHandler.obtainMessage(Constants.MESSAGE_DEVICE_NAME);
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.DEVICE_NAME, device.getName());
-        msg.setData(bundle);
-        mHandler.sendMessage(msg);
+        if(flag == 2) {
+            mConnectedThread.start();
+        }
+        if(flag == 3){
+            Message msg = mHandler.obtainMessage(3);
+            mHandler.sendMessage(msg);
+        }
 
         setState(STATE_CONNECTED);
     }
@@ -188,7 +191,7 @@ public class BluetoothChatService {
 
         Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(Constants.TOAST, "无法连接设备!");
+        bundle.putString(Constants.TOAST, "cannot connect devices!");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
         BluetoothChatService.this.start();
@@ -199,7 +202,7 @@ public class BluetoothChatService {
 
         Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(Constants.TOAST, "设备连接已断开");
+        bundle.putString(Constants.TOAST, "connection lost!");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -207,9 +210,7 @@ public class BluetoothChatService {
     }
 
     private class AcceptThread extends Thread {
-        // The local server socket
         private final BluetoothServerSocket mmServerSocket;
-        private String mSocketType;
 
         public AcceptThread() {
             BluetoothServerSocket tmp = null;
@@ -217,7 +218,6 @@ public class BluetoothChatService {
             try {
                 tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, MY_UUID_SECURE);
             } catch (IOException e) {
-                // Log.e(TAG, "Socket Type: " + mSocketType + "listen() failed", e);
             }
             mmServerSocket = tmp;
         }
@@ -230,7 +230,6 @@ public class BluetoothChatService {
                 try {
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
-                    //  Log.e(TAG, "Socket Type: " + mSocketType + "accept() failed", e);
                     break;
                 }
                 if (socket != null) {
@@ -238,15 +237,13 @@ public class BluetoothChatService {
                         switch (mState) {
                             case STATE_LISTEN:
                             case STATE_CONNECTING:
-                                // Situation normal. Start the connected thread.
-                                connected(socket, socket.getRemoteDevice());
+                                connected(socket, socket.getRemoteDevice(),2);
                                 break;
                             case STATE_NONE:
                             case STATE_CONNECTED:
                                 try {
                                     socket.close();
                                 } catch (IOException e) {
-                                    //Log.e(TAG, "Could not close unwanted socket", e);
                                 }
                                 break;
                         }
@@ -256,11 +253,9 @@ public class BluetoothChatService {
         }
 
         public void cancel() {
-            // Log.d(TAG, "Socket Type" + mSocketType + "cancel " + this);
             try {
                 mmServerSocket.close();
             } catch (IOException e) {
-                // Log.e(TAG, "Socket Type" + mSocketType + "close() of server failed", e);
             }
         }
     }
@@ -277,13 +272,11 @@ public class BluetoothChatService {
                 tmp = device.createRfcommSocketToServiceRecord(
                         MY_UUID_SECURE);
             } catch (IOException e) {
-                //  Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
             }
             mmSocket = tmp;
         }
 
         public void run() {
-            // Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
             mAdapter.cancelDiscovery();
 
             try {
@@ -293,8 +286,6 @@ public class BluetoothChatService {
                 try {
                     mmSocket.close();
                 } catch (IOException e2) {
-                    //   Log.e(TAG, "unable to close() " + mSocketType +
-                    //         " socket during connection failure", e2);
                 }
                 connectionFailed();
                 return;
@@ -304,14 +295,13 @@ public class BluetoothChatService {
                 mConnectThread = null;
             }
 
-            connected(mmSocket, mmDevice);
+            connected(mmSocket, mmDevice,3);
         }
 
         public void cancel() {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                //  Log.e(TAG, "close() of connect " + mSocketType + " socket failed", e);
             }
         }
     }
@@ -322,7 +312,6 @@ public class BluetoothChatService {
         private final OutputStream mmOutStream;
 
         public ConnectedThread(BluetoothSocket socket) {
-            // Log.d(TAG, "create ConnectedThread: " + socketType);
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -331,7 +320,6 @@ public class BluetoothChatService {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
-                //  Log.e(TAG, "temp sockets not created", e);
             }
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
@@ -341,7 +329,7 @@ public class BluetoothChatService {
 
             synchronized (BluetoothChatService.class) {
 
-                byte[] buffer = new byte[1024 * 4];
+                byte[] buffer = new byte[1024];
                 int bytes;
 
                 while (mState == STATE_CONNECTED) {
@@ -349,8 +337,22 @@ public class BluetoothChatService {
                         bytes = mmInStream.read(buffer);
                         String data = new String(buffer, 0, bytes, "UTF-8");
                         Message msg = Message.obtain();
-                        msg.what = Constants.MESSAGE_READ;
-                        msg.obj = data;
+
+                        if(data.contains("begin")){
+                            Log.d("status","receive begin");
+                            recdata = new byte[0];
+                        }
+                        else if(data.contains("end")){
+                            Log.d("status","receive end");
+                            msg.what = Constants.MESSAGE_READ;
+                            msg.obj = recdata;
+                        }
+                        else {
+                            recdata = byteMerger(recdata,buffer,bytes);
+                        }
+
+
+
                         mHandler.sendMessage(msg);
 
                     } catch (IOException e) {
@@ -367,10 +369,7 @@ public class BluetoothChatService {
             try {
                 mmOutStream.write(buffer);
                 mmOutStream.flush();
-                mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
-                        .sendToTarget();
             } catch (IOException e) {
-                //Log.e(TAG, "Exception during write", e);
             }
         }
 
@@ -378,9 +377,14 @@ public class BluetoothChatService {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                //    Log.e(TAG, "close() of connect socket failed", e);
             }
         }
+    }
+    private static byte[] byteMerger(byte[] bt1, byte[] bt2,int len){
+        byte[] bt3 = new byte[bt1.length+len];
+        System.arraycopy(bt1, 0, bt3, 0, bt1.length);
+        System.arraycopy(bt2, 0, bt3, bt1.length, len);
+        return bt3;
     }
 }
 

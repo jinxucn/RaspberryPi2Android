@@ -3,7 +3,7 @@
     <string name="Title">RaspberryConnector</string>
     <string name="tv1">TestReceive</string>
     <string name="btn1">TurnOnBluetooth</string>
-    <string name="btn2">SendMessage</string>
-    <string name="btn3">ReceiveMessage</string>
+    <string name="btn2">Take   Picture</string>
+    <string name="btn3">Refresh  Picture</string>
     <string name="tvRec">Hello</string>
 </resources>
