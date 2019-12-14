@@ -338,8 +338,13 @@ public class BluetoothChatService {
                         String data = new String(buffer, 0, bytes, "UTF-8");
                         Message msg = Message.obtain();
 
-                        if(data.contains("begin")){
-                            Log.d("status","receive begin");
+                        if(data.contains("log")){
+                            Log.d("status","receive a log");
+                            msg.what = 6;
+                            msg.obj = data;
+                        }
+                        else if(data.contains("begin")){
+                            Log.d("status","receiving picture");
                             recdata = new byte[0];
                         }
                         else if(data.contains("end")){
