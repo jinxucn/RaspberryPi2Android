@@ -6,8 +6,11 @@
 from bluetooth import *
 from multiprocessing import Process, Queue
 import time
-from PyOBEX.client import Client
+#from PyOBEX.client import Client
 from picamera import PiCamera
+import Adafruit_DHT
+import subprocess
+import datetime
 
 
 def server(q):
@@ -48,7 +51,7 @@ def server(q):
     print("all done")
 
 
-def client(q, addr):
+def client(q, q_log, addr):
 
     print("Searching for SampleServer_pc on %s" % addr)
 
@@ -59,7 +62,7 @@ def client(q, addr):
 
         if len(service_matches) == 0:
             print("Couldn't find the SampleServer_pc service. Continue to search...")
-            time.sleep(1)
+            time.sleep(2)
         # sys.exit(0)
         else:
             break
@@ -76,25 +79,20 @@ def client(q, addr):
     sock.connect((host, port))
 
     print("Client connected to {}.".format(name))
-##    cam = PiCamera()
     while True:
         data = q.get()
         if len(data) == 0: continue
         print('received data from pc:', data)
         if data == 'pic':
-##            print('taking photo...')
-##            #cam.start_preview()
-##            time.sleep(1)
-##            cam.capture('pic.jpg')
-##            print('sending image...')
-##            sock.send('begin')
-##            with open ('pic.png', 'rb') as f:
-##                buffer = 1
-##                while buffer:
-##                    buffer = f.read(1024)
-##                    sock.send(buffer)
-##            print('image sent.')
-##            sock.send('end')
+            print('sending image...')
+            sock.send('begin')
+            with open ('pic.png', 'rb') as f:
+                buffer = 1
+                while buffer:
+                    buffer = f.read(1024)
+                    sock.send(buffer)
+            print('image sent.')
+            sock.send('end')
             if os.path.isfile('log/record.log'):
                 for line in open('log/record.log','r'):
                     print(line)
@@ -111,13 +109,60 @@ def client(q, addr):
     sock.close()
 
 
+def record(q_log):
+    log_path = './log'
+    if os.path.exists(log_path):
+        subprocess.call('rm -rf {}'.format(log_path), shell=True)
+    os.mkdir(log_path)
+
+        
+    print('begin motering...')
+    cam = PiCamera()
+    cam.resolution = (1024, 768)
+    sensor = Adafruit_DHT.DHT22
+
+    pin = '4'
+    
+    count = 0
+    while True:
+        while True:
+            humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+            if humidity is not None and temperature is not None:
+                break
+        if temperature > 30.0:
+            t = datetime.datetime.now()
+            t_fm = '{:02d}:{:02d}:{:02d}_{:02d}-{:02d}-{:04d}'.format(t.hour,
+                t.minute, t.second, t.month, t.day, t.year)
+
+            pic_name = '{}.jpg'.format(t_fm)
+            pic_path = os.path.join(log_path, pic_name)
+
+            print('taking photo...')
+            #cam.start_preview()
+
+            cam.capture(pic_path, resize=(512, 384))
+            time.sleep(1)
+    
+            print('*ALERT* Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity))
+            data = {'time':t_fm, 'temperature':temperature,
+                'humidity':humidity}
+            q_log.put(data)
+
+        time.sleep(30)
+
+
+
 if __name__ == '__main__':
     addr = 'A4:70:D6:B6:48:69'
     q = Queue()
+    q_log = Queue()
     p_server = Process(target=server, args=(q,))
     p_client = Process(target=client, args=(q, addr))
+    p_record = Process(target=record, args=(q_log))
+    p_record.start()
     p_server.start()
     time.sleep(5)
     p_client.start()
     p_server.join()
+    p_record.join()
     p_client.join()
