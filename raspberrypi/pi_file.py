@@ -96,18 +96,24 @@ def client(q, addr):
 ##            print('image sent.')
 ##            sock.send('end')
             if os.path.isfile('log/record.log'):
-                for line in open('log/record.log','r'):
-                    print(line)
-                    print('pic_begin')
-                    with open ('log/{}.png'.format(line[1:17]), 'rb') as f:
+                lf = open('log/record.log','r')
+                for line in lf.readlines():
+                    sock.send(line)
+                    print('sending: '+line)
+                    sock.send('pic_begin')
+                    with open ('log/{}.png'.format(line[4:20]), 'rb') as f:
                         buffer = 1
                         while buffer:
                             buffer = f.read(1024)
-                            print(buffer)
-                    print('pic_end')
-                print('log_end')
+                            sock.send(buffer)
+                    time.sleep(1)
+                    sock.send('pic_end')
+                sock.send('transmit_end')
+                print('transmit_end')
+                lf.close()
+                os.remove('log/record.log')
             else:
-                print('no_record')
+                sock.send('no_record')
     sock.close()
 
 
