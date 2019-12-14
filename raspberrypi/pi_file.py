@@ -84,34 +84,25 @@ def client(q, q_log, addr):
         if len(data) == 0: continue
         print('received data from pc:', data)
         if data == 'pic':
-            print('sending image...')
-            sock.send('begin')
-            with open ('pic.png', 'rb') as f:
-                buffer = 1
-                while buffer:
-                    buffer = f.read(1024)
-                    sock.send(buffer)
-            print('image sent.')
-            sock.send('end')
-            if os.path.isfile('log/record.log'):
-                lf = open('log/record.log','r')
-                for line in lf.readlines():
-                    sock.send(line)
-                    print('sending: '+line)
-                    sock.send('pic_begin')
-                    with open ('log/{}.png'.format(line[4:20]), 'rb') as f:
-                        buffer = 1
-                        while buffer:
-                            buffer = f.read(1024)
-                            sock.send(buffer)
-                    time.sleep(1)
-                    sock.send('pic_end')
-                sock.send('transmit_end')
-                print('transmit_end')
-                lf.close()
-                os.remove('log/record.log')
-            else:
-                sock.send('no_record')
+            while not q_log.empty():
+                print('pic_begin')
+                log = q_log.get()
+                t = log['time']
+                temp = log['temperature']
+                hum = log['humidity']
+                
+                sock.send('time:{}, temperature:{:.2f}*C, humidity:{:.2f}%'.format(t, temp, hum))
+                time.sleep(1)
+                sock.send('pic_begin')
+                with open ('log/{}.jpg'.format(t), 'rb') as f:
+                    buffer = 1
+                    while buffer:
+                        buffer = f.read(1024)
+                        sock.send(buffer)
+                time.sleep(1)
+                sock.send('pic_end')
+            sock.send('transmit_end')
+            print('transmit_end')
     sock.close()
 
 
@@ -135,7 +126,7 @@ def record(q_log):
             humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
             if humidity is not None and temperature is not None:
                 break
-        if temperature > 30.0:
+        if temperature > 20.0:
             t = datetime.datetime.now()
             t_fm = '{:02d}:{:02d}:{:02d}_{:02d}-{:02d}-{:04d}'.format(t.hour,
                 t.minute, t.second, t.month, t.day, t.year)
@@ -154,7 +145,7 @@ def record(q_log):
                 'humidity':humidity}
             q_log.put(data)
 
-        time.sleep(30)
+        time.sleep(15)
 
 
 
@@ -163,8 +154,8 @@ if __name__ == '__main__':
     q = Queue()
     q_log = Queue()
     p_server = Process(target=server, args=(q,))
-    p_client = Process(target=client, args=(q, addr))
-    p_record = Process(target=record, args=(q_log))
+    p_client = Process(target=client, args=(q, q_log, addr))
+    p_record = Process(target=record, args=(q_log,))
     p_record.start()
     p_server.start()
     time.sleep(5)
