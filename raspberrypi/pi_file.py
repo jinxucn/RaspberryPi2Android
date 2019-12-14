@@ -7,6 +7,7 @@ from bluetooth import *
 from multiprocessing import Process, Queue
 import time
 from PyOBEX.client import Client
+from picamera import PiCamera
 
 
 def server(q):
@@ -75,20 +76,38 @@ def client(q, addr):
     sock.connect((host, port))
 
     print("Client connected to {}.".format(name))
+##    cam = PiCamera()
     while True:
         data = q.get()
         if len(data) == 0: continue
         print('received data from pc:', data)
         if data == 'pic':
-            print('sending image...')
-            sock.send('begin')
-            with open ('pic.png', 'rb') as f:
-                buffer = 1
-                while buffer:
-                    buffer = f.read(1024)
-                    sock.send(buffer)
-            print('image sent.')
-            sock.send('end')
+##            print('taking photo...')
+##            #cam.start_preview()
+##            time.sleep(1)
+##            cam.capture('pic.jpg')
+##            print('sending image...')
+##            sock.send('begin')
+##            with open ('pic.png', 'rb') as f:
+##                buffer = 1
+##                while buffer:
+##                    buffer = f.read(1024)
+##                    sock.send(buffer)
+##            print('image sent.')
+##            sock.send('end')
+            if os.path.isfile('log/record.log'):
+                for line in open('log/record.log','r'):
+                    print(line)
+                    print('pic_begin')
+                    with open ('log/{}.png'.format(line[1:17]), 'rb') as f:
+                        buffer = 1
+                        while buffer:
+                            buffer = f.read(1024)
+                            print(buffer)
+                    print('pic_end')
+                print('log_end')
+            else:
+                print('no_record')
     sock.close()
 
 

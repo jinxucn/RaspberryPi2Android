@@ -4,11 +4,18 @@
 # Time: 2019/11/13 16:44
 
 
-import bluetooth
+import os
 
-while True:
-    nearby_devices = bluetooth.discover_devices(lookup_names=True)
-    print("found %d devices" % len(nearby_devices))
-
-    for addr, name in nearby_devices:
-        print("  %s - %s" % (addr, name))
+if os.path.isfile('log/record.log'):
+    for line in open('log/record.log','r'):
+        print(line)
+        print('pic_begin')
+        with open ('log/{}.png'.format(line[1:17]), 'rb') as f:
+                buffer = 1
+                while buffer:
+                    buffer = f.read(1024)
+                    print(buffer)
+        print('pic_end')
+    print('log_end')
+else:
+    print('no_record')
