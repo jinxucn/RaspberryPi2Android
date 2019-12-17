@@ -90,17 +90,17 @@ def client(q, q_log, addr):
                 t = log['time']
                 temp = log['temperature']
                 hum = log['humidity']
-                time.sleep(0.1)
+                time.sleep(0.5)
                 sock.send('time:{}, temperature:{:.2f}*C, humidity:{:.2f}%'.format(t, temp, hum))
-                time.sleep(0.1)
+                time.sleep(0.5)
                 sock.send('pic_begin')
                 with open ('log/{}.jpg'.format(t), 'rb') as f:
                     buffer = 1
                     while buffer:
                         buffer = f.read(1024)
-                        time.sleep(0.1)
+                        # time.sleep(0.05)
                         sock.send(buffer)
-                time.sleep(0.1)
+                time.sleep(0.5)
                 sock.send('pic_end')
             time.sleep(0.1)
             sock.send('transmit_end')
