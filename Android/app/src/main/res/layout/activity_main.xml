@@ -46,16 +46,6 @@
             android:background="@drawable/btn2"
             android:onClick="takePicture"
             />
-        <Button
-            android:id="@+id/btn3"
-            android:layout_width="90dp"
-            android:layout_height="50dp"
-            android:layout_margin="30dp"
-            android:textAllCaps="false"
-            android:text="@string/btn3"
-            android:textSize="20sp"
-            android:background="@drawable/btn3"
-            android:onClick="refresh"
-            />
+
     </LinearLayout>
 </LinearLayout>

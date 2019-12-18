@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-
+            Log.v("what is",Integer.toString(msg.what));
             if (msg.what == 3){
 
                 Log.v(TAG,"writing");
@@ -49,13 +49,21 @@ public class MainActivity extends AppCompatActivity {
                 mservice.start();
             }
             if(msg.what == 6){
-                creatText((String) msg.obj);
+                String log = (String) msg.obj;
+
+                creatText(log);
+
             }
             if(msg.what == 2){
                 byte[] data = (byte[]) msg.obj;
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 creatImg(bitmap);
+
 //                img.setImageBitmap(bitmap);
+            }
+            if(msg.what == 7){
+                sv_root.addView(ll_root);
+                setContentView(sv_root);
             }
 
             return false;

@@ -337,20 +337,24 @@ public class BluetoothChatService {
                         bytes = mmInStream.read(buffer);
                         String data = new String(buffer, 0, bytes, "UTF-8");
                         Message msg = Message.obtain();
-
-                        if(data.contains("log")){
+                        Log.d("dara is ",data);
+                        if(data.contains("time")){
                             Log.d("status","receive a log");
                             msg.what = 6;
                             msg.obj = data;
                         }
-                        else if(data.contains("begin")){
-                            Log.d("status","receiving picture");
+                        else if(data.equals("pic_begin")){
+                            Log.d("status","picture start");
                             recdata = new byte[0];
                         }
-                        else if(data.contains("end")){
-                            Log.d("status","receive end");
+                        else if(data.equals("pic_end")){
+                            Log.d("status","picture end");
                             msg.what = Constants.MESSAGE_READ;
                             msg.obj = recdata;
+                        }
+                        else if(data.equals("transmit_end")){
+                            Log.d("status","receive end");
+                            msg.what = 7;
                         }
                         else {
                             recdata = byteMerger(recdata,buffer,bytes);
